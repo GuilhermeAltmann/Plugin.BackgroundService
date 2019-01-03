@@ -1,5 +1,7 @@
 ﻿# Xamarin.Forms Background Service
 
+This plugin can be used for creating background services on Android and iOS.
+
 ### Android initialization
 
 First, your `MainActivity.cs` must inherit from `Plugin.BackgroundService.ActivityWithBackgroundService`.  
@@ -72,3 +74,38 @@ NativeBackgroundServiceHost.Init(() => new BackgroundServiceHost(list =>
 In order to keep the app running, your app must be declared as [supporting background tasks](https://developer.apple.com/library/archive/documentation/iPhone/Conceptual/iPhoneOSProgrammingGuide/BackgroundExecution/BackgroundExecution.html).
 
 Annnnd you're done. Unlike Android, the background service can run only if you are listening geolocation for example, and while you're listening to it. If you kill the app, the background service will be stopped too.
+
+### How to interact with the background service?
+
+In order to start the background service, you have to send a message through the MessagingCenter:
+```csharp
+var messagingCenter = MessagingCenter.Instance;
+messagingCenter.Send<object>(this, Plugin.BackgroundService.Messages.ToBackgroundMessages.StartBackgroundService);
+```
+
+For stopping it:
+```csharp
+var messagingCenter = MessagingCenter.Instance;
+messagingCenter.Send<object>(this, Plugin.BackgroundService.Messages.ToBackgroundMessages.StopBackgroundService);
+```
+
+Subscribe to background service state:
+```csharp
+var messagingCenter = MessagingCenter.Instance;
+messagingCenter.Subscribe<object, BackgroundServiceState>(this, Plugin.BackgroundService.Messages.FromBackgroundMessages.BackgroundServiceState, OnBackgroundServiceState);
+```
+Do not forget to unsubscribe from `MessagingCenter`:
+```csharp
+var messagingCenter = MessagingCenter.Instance;
+messagingCenter.Unsubscribe<object, BackgroundServiceState>(this, Plugin.BackgroundService.Messages.FromBackgroundMessages.BackgroundServiceState);
+```
+
+Send request for getting background service state:
+```csharp
+var messagingCenter = MessagingCenter.Instance;
+messagingCenter.Send<object>(this, Plugin.BackgroundService.Messages.ToBackgroundMessages.GetBackgroundServiceState);
+```
+
+### Notes
+
+Please note that all your `IService` classes MUST NOT use any form of dependency injection, or at least, not the same as your application. The background service and your application do not have the same life cycle and you may have some mixed up references between your background service and your app if you use the same IoC.
