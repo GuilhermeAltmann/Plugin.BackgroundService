@@ -40,9 +40,9 @@
     <Description>All services launched using this plugin can run in background, event if the app is not running anymore (well, at least on Android), nor on foreground.</Description>
     
     
-    <Owners>Neovigie</Owners>
-    <Authors>Neovigie</Authors>
-    <Copyright>Copyright 2018</Copyright>
+    <Owners>Nicolas Garcia</Owners>
+    <Authors>Nicolas Garcia</Authors>
+    <Copyright>Copyright 2019</Copyright>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)'=='Debug' ">
