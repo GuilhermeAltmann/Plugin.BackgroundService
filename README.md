@@ -41,7 +41,7 @@ protected override void OnCreate(Bundle bundle)
 
 Add the following line after `LoadApplication(app)`:
 ```csharp
-NativeBackgroundServiceHost.Init(this,
+NativeBackgroundServiceHost.Init(
     "YOUR_SERVICE_NAME",
     $"{Application.PackageName}.YOUR_SERVICE_NAME", 
     "Your display service name",
