@@ -1,12 +1,12 @@
 ﻿using Prism;
 using Prism.Ioc;
-using PrismAppWithBackgroundService.ViewModels;
-using PrismAppWithBackgroundService.Views;
+using SampleApp.ViewModels;
+using SampleApp.Views;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
 [assembly: XamlCompilation(XamlCompilationOptions.Compile)]
-namespace PrismAppWithBackgroundService
+namespace SampleApp
 {
     public partial class App
     {
@@ -28,6 +28,8 @@ namespace PrismAppWithBackgroundService
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
+            containerRegistry.RegisterInstance(typeof(IMessagingCenter), MessagingCenter.Instance);
+
             containerRegistry.RegisterForNavigation<NavigationPage>();
             containerRegistry.RegisterForNavigation<MainPage, MainPageViewModel>();
         }
