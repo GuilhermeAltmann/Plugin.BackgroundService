@@ -9,10 +9,10 @@ using Android.Support.V4.App;
 using Plugin.BackgroundService.Messages;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.Android;
-using Debug = System.Diagnostics.Debug;
 
 #if __ANDROID__
 [assembly: UsesPermission(Manifest.Permission.WakeLock)]
+// ReSharper disable once CheckNamespace
 namespace Plugin.BackgroundService
 {
     /// <summary>
@@ -111,7 +111,7 @@ namespace Plugin.BackgroundService
             _notificationManager = GetSystemService(NotificationService) as NotificationManager;
             if (_notificationManager == null)
             {
-                Debug.WriteLine("Unable to get NotificationManager in NativeBackgroundService");
+                Android.Util.Log.Warn(_serviceName, "Unable to get NotificationManager in NativeBackgroundService");
                 return;
             }
 
@@ -208,7 +208,7 @@ namespace Plugin.BackgroundService
             }
             catch (Exception e)
             {
-                Debug.WriteLine(e.Message);
+                Android.Util.Log.Error(_serviceName, e.ToString());
             }
         }
 
@@ -292,7 +292,7 @@ namespace Plugin.BackgroundService
             }
             catch (Exception e)
             {
-                Debug.WriteLine(e.Message);
+                Android.Util.Log.Error(_serviceName, e.ToString());
             }
 
             _handler?.PostDelayed(ScheduleNext,

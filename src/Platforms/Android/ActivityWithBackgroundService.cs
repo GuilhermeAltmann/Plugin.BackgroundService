@@ -14,6 +14,12 @@ namespace Plugin.BackgroundService
     public abstract class ActivityWithBackgroundService : FormsAppCompatActivity
     {
         /// <summary>
+        /// Tag for logging purpose
+        /// </summary>
+        public virtual string Tag => Application.PackageName;
+
+
+        /// <summary>
         /// Define if we should ask the user to turn down battery optimizations on startup
         /// </summary>
         /// <example>
@@ -81,12 +87,14 @@ namespace Plugin.BackgroundService
         {
             base.OnStart();
             BindService(new Intent(this, typeof(NativeBackgroundServiceHost)), _serviceConnection, Bind.AutoCreate);
+            Android.Util.Log.Info(Tag, "Binding to service...");
         }
 
         /// <inheritdoc />
         protected override void OnStop()
         {
             base.OnStop();
+            Android.Util.Log.Info(Tag, "Unbinding service... ");
             UnbindService(_serviceConnection);
         }
 
@@ -94,6 +102,7 @@ namespace Plugin.BackgroundService
         {
             if (BoundToService && BackgroundService.IsStarted)
                 return;
+            Android.Util.Log.Info(Tag, "Starting service...");
             this.StartForegroundServiceCompat<NativeBackgroundServiceHost>();
         }
 
@@ -101,7 +110,7 @@ namespace Plugin.BackgroundService
         {
             if (!BoundToService || !BackgroundService.IsStarted)
                 return;
-
+            Android.Util.Log.Info(Tag, "Stopping service...");
             this.StartForegroundServiceCompat<NativeBackgroundServiceHost>(new Dictionary<string, bool> { { NativeBackgroundServiceHost.StopServiceExtra, true } });
         }
 
