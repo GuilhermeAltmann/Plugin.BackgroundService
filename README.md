@@ -1,6 +1,6 @@
 ﻿# Xamarin.Forms Background Service
 
-[![Build status](https://neovigie.visualstudio.com/Plugin.BackgroundService/_apis/build/status/Plugin.BackgroundService-CI)](https://neovigie.visualstudio.com/Plugin.BackgroundService/_build/latest?definitionId=28)
+[![Build status](https://dev.azure.com/nicolas-garcia/Plugin.BackgroundService/_apis/build/status/Plugin.BackgroundService-CI)](https://dev.azure.com/nicolas-garcia/Plugin.BackgroundService/_build/latest?definitionId=2)
 
 This plugin can be used for creating background services on Android and iOS.
 
@@ -41,7 +41,7 @@ protected override void OnCreate(Bundle bundle)
 
 Add the following line after `LoadApplication(app)`:
 ```csharp
-NativeBackgroundServiceHost.Init(this,
+NativeBackgroundServiceHost.Init(
     "YOUR_SERVICE_NAME",
     $"{Application.PackageName}.YOUR_SERVICE_NAME", 
     "Your display service name",

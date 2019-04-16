@@ -19,5 +19,11 @@
         /// Get current background service host state
         /// </summary>
         public const string GetBackgroundServiceState = "GetBackgroundServiceState";
+
+        /// <summary>
+        /// Update the notification message.
+        /// Works only for Android.
+        /// </summary>
+        public const string UpdateBackgroundServiceNotificationMessage = "UpdateBackgroundServiceNotificationMessage";
     }
 }

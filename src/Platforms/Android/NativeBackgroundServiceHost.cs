@@ -9,10 +9,10 @@ using Android.Support.V4.App;
 using Plugin.BackgroundService.Messages;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.Android;
-using Debug = System.Diagnostics.Debug;
 
 #if __ANDROID__
 [assembly: UsesPermission(Manifest.Permission.WakeLock)]
+// ReSharper disable once CheckNamespace
 namespace Plugin.BackgroundService
 {
     /// <summary>
@@ -21,6 +21,7 @@ namespace Plugin.BackgroundService
     [Service(Enabled = true, Exported = false)]
     public class NativeBackgroundServiceHost : Service
     {
+        private static readonly int ServiceNotificationId = new Random().Next();
         private static string _serviceName;
         private static string _serviceNotificationChannelId;
         private static string _serviceNotificationChannelName;
@@ -99,7 +100,6 @@ namespace Plugin.BackgroundService
 
             _binder = new BackgroundServiceBinder(this);
             _messagingCenter = MessagingCenter.Instance;
-            //_actionMainActivity = "com.companyname.appname.show_main_activity";
         }
 
         /// <inheritdoc />
@@ -111,7 +111,7 @@ namespace Plugin.BackgroundService
             _notificationManager = GetSystemService(NotificationService) as NotificationManager;
             if (_notificationManager == null)
             {
-                Debug.WriteLine("Unable to get NotificationManager in NativeBackgroundService");
+                Android.Util.Log.Warn(_serviceName, "Unable to get NotificationManager in NativeBackgroundService");
                 return;
             }
 
@@ -119,7 +119,7 @@ namespace Plugin.BackgroundService
             if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
             {
                 var notificationChannel = new NotificationChannel(_serviceNotificationChannelId,
-                    _serviceNotificationChannelName, NotificationImportance.High)
+                    _serviceNotificationChannelName, NotificationImportance.Default)
                 {
                     LockscreenVisibility = NotificationVisibility.Secret
                 };
@@ -160,6 +160,9 @@ namespace Plugin.BackgroundService
                         IsStarted = true;
                         _messagingCenter.Send<object, BackgroundServiceState>(this,
                             FromBackgroundMessages.BackgroundServiceState, new BackgroundServiceState(true));
+                        _messagingCenter.Subscribe<object, UpdateNotificationMessage>(this, 
+                            ToBackgroundMessages.UpdateBackgroundServiceNotificationMessage, 
+                            OnNotificationMessageUpdate);
                     });
             }
             else // Stop request
@@ -168,6 +171,17 @@ namespace Plugin.BackgroundService
             }
 
             return StartCommandResult.Sticky;
+        }
+
+        private void OnNotificationMessageUpdate(object sender, UpdateNotificationMessage message)
+        {
+            UpdateServiceNotificationContent(message.NewText);
+        }
+
+        private void UpdateServiceNotificationContent(string contentText)
+        {
+            var notification = BuildNotification(contentText);
+            _notificationManager.Notify(ServiceNotificationId, notification);
         }
 
         /// <inheritdoc />
@@ -208,7 +222,7 @@ namespace Plugin.BackgroundService
             }
             catch (Exception e)
             {
-                Debug.WriteLine(e.Message);
+                Android.Util.Log.Error(_serviceName, e.ToString());
             }
         }
 
@@ -225,23 +239,15 @@ namespace Plugin.BackgroundService
                     IsStarted = false;
                     _messagingCenter.Send<object, BackgroundServiceState>(this,
                         FromBackgroundMessages.BackgroundServiceState, new BackgroundServiceState(false));
+                    _messagingCenter.Unsubscribe<object, UpdateNotificationMessage>(this, ToBackgroundMessages.UpdateBackgroundServiceNotificationMessage);
                 });
         }
 
         private void BuildForegroundService()
         {
-            var notificationBuilder = new NotificationCompat.Builder(this, _serviceNotificationChannelId)
-                .SetContentTitle(_serviceNotificationTitle)
-                .SetSmallIcon(_serviceNotificationIcon)
-                .SetContentText(_serviceNotificationContent)
-                .SetOngoing(true)
-                .SetCategory(Notification.CategoryService);
+            var notification = BuildNotification(_serviceNotificationContent);
 
-            if (_intentLaunchType != null)
-                notificationBuilder.SetContentIntent(BuildIntentToShowMainActivity());
-                    
-            var notification = notificationBuilder.Build();
-            StartForeground(new Random().Next(), notification);
+            StartForeground(ServiceNotificationId, notification);
         }
 
         private PendingIntent BuildIntentToShowMainActivity()
@@ -252,6 +258,22 @@ namespace Plugin.BackgroundService
             var pendingIntent =
                 PendingIntent.GetActivity(this, 0, notificationIntent, PendingIntentFlags.UpdateCurrent);
             return pendingIntent;
+        }
+
+        private Notification BuildNotification(string contentText)
+        {
+            var notificationBuilder = new NotificationCompat.Builder(this, _serviceNotificationChannelId)
+                .SetContentTitle(_serviceNotificationTitle)
+                .SetSmallIcon(_serviceNotificationIcon)
+                .SetContentText(contentText)
+                .SetOngoing(true)
+                .SetCategory(Notification.CategoryService);
+
+            if (_intentLaunchType != null)
+                notificationBuilder.SetContentIntent(BuildIntentToShowMainActivity());
+
+            var notification = notificationBuilder.Build();
+            return notification;
         }
 
         private void AcquireWakelock()
@@ -292,7 +314,7 @@ namespace Plugin.BackgroundService
             }
             catch (Exception e)
             {
-                Debug.WriteLine(e.Message);
+                Android.Util.Log.Error(_serviceName, e.ToString());
             }
 
             _handler?.PostDelayed(ScheduleNext,

@@ -1,6 +1,7 @@
 ﻿using Android.Content;
 using Android.OS;
 
+// ReSharper disable once CheckNamespace
 namespace Plugin.BackgroundService
 {
     /// <summary>
@@ -21,6 +22,7 @@ namespace Plugin.BackgroundService
         public void OnServiceConnected(ComponentName name, IBinder service)
         {
             var binder = service as BackgroundServiceBinder;
+            Android.Util.Log.Info(MainActivity.Tag, "Connecting to service... Handle: [{0}], Hash: [{1}]", binder?.Service.Handle.ToString(), binder?.Service.JniIdentityHashCode);
             MainActivity.BackgroundService = binder?.Service;
         }
 
@@ -30,6 +32,7 @@ namespace Plugin.BackgroundService
         /// <param name="name"></param>
         public void OnServiceDisconnected(ComponentName name)
         {
+            Android.Util.Log.Info(MainActivity.Tag, "Disconnecting from service... Handle: [{0}], Hash: [{1}]", MainActivity.BackgroundService.Handle.ToString(), MainActivity.BackgroundService.JniIdentityHashCode);
             MainActivity.BackgroundService = null;
         }
     }

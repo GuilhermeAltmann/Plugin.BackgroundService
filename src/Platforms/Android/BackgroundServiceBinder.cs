@@ -1,5 +1,6 @@
 ﻿using Android.OS;
 
+// ReSharper disable once CheckNamespace
 namespace Plugin.BackgroundService
 {
     /// <summary>

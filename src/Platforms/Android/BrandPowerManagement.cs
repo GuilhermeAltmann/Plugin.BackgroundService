@@ -3,6 +3,7 @@ using Android.App;
 using Android.Content;
 using Android.Content.PM;
 
+// ReSharper disable once CheckNamespace
 namespace Plugin.BackgroundService
 {
     /// <summary>
@@ -11,7 +12,7 @@ namespace Plugin.BackgroundService
     /// </summary>
     public static class BrandPowerManagement
     {
-        private static readonly List<Intent> PowermanagerIntents = new List<Intent>()
+        private static readonly List<Intent> PowerManagerIntents = new List<Intent>()
         {
             new Intent().SetComponent(new ComponentName("com.miui.securitycenter", "com.miui.permcenter.autostart.AutoStartManagementActivity")),
             new Intent().SetComponent(new ComponentName("com.letv.android.letvsafe", "com.letv.android.letvsafe.AutobootManageActivity")),
@@ -38,7 +39,7 @@ namespace Plugin.BackgroundService
             if (skipMessage)
                 return;
             var editor = settings.Edit();
-            foreach (var intent in PowermanagerIntents)
+            foreach (var intent in PowerManagerIntents)
             {
                 if (context.PackageManager.ResolveActivity(intent, PackageInfoFlags.MatchDefaultOnly) == null)
                     continue;
