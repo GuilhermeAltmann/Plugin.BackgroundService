@@ -1,12 +1,24 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Plugin.BackgroundService;
+using Prism;
+using Prism.Ioc;
+using Prism.Unity;
 
 namespace SampleApp.Services
 {
+    /// <summary>
+    /// Periodic background service
+    /// </summary>
     public class AliveService : IPeriodicService
     {
         private int _count;
+        private IFactService _factService;
+
+        public AliveService()
+        {
+            
+        }
 
         public Task StartAsync()
         {
@@ -21,10 +33,23 @@ namespace SampleApp.Services
             return Task.CompletedTask;
         }
 
-        public Task PeriodicActionAsync()
+        public async Task PeriodicActionAsync()
         {
             Console.WriteLine("I'm still alive! [{0}]", _count++);
-            return Task.CompletedTask;
+
+            if (PrismApplicationBase.Current != null && _factService == null)
+                _factService = PrismApplicationBase.Current.Container.Resolve<IFactService>();                
+            if (_factService != null)
+            {
+                var fact = await _factService.GetLatestFactAsync();
+                if (fact != null)
+                {
+                    Console.WriteLine("I know something interesting: {0}", fact.Text);
+                }
+
+                await _factService.UpdateFactAsync();
+            }
+
         }
     }
 }

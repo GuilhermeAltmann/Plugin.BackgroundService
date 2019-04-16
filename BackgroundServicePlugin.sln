@@ -14,7 +14,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{DC4E
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sources", "Sources", "{CE558B63-F3E2-4DAD-842B-B293FBB20238}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleApp", "samples\SampleApp\SampleApp\SampleApp.csproj", "{0C5FCA83-539B-4262-8C5B-0771BA9FC40E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleApp", "samples\SampleApp\SampleApp\SampleApp.csproj", "{0C5FCA83-539B-4262-8C5B-0771BA9FC40E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleApp.Android", "samples\SampleApp\SampleApp.Android\SampleApp.Android.csproj", "{B4578CAF-328F-4ACA-8EF1-E6B1FC369075}"
 EndProject

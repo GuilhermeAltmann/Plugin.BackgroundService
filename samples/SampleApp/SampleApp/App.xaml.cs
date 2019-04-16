@@ -1,5 +1,6 @@
 ﻿using Prism;
 using Prism.Ioc;
+using SampleApp.Services;
 using SampleApp.ViewModels;
 using SampleApp.Views;
 using Xamarin.Forms;
@@ -29,6 +30,9 @@ namespace SampleApp
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
             containerRegistry.RegisterInstance(typeof(IMessagingCenter), MessagingCenter.Instance);
+            containerRegistry.RegisterSingleton<IRestService, RestService>();
+            containerRegistry.RegisterSingleton<ISecureStorageService, SecureStorageService>();
+            containerRegistry.RegisterSingleton<IFactService, FactService>();
 
             containerRegistry.RegisterForNavigation<NavigationPage>();
             containerRegistry.RegisterForNavigation<MainPage, MainPageViewModel>();
