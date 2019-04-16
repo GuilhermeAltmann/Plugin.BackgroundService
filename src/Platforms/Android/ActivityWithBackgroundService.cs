@@ -6,6 +6,7 @@ using Plugin.BackgroundService.Messages;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.Android;
 
+// ReSharper disable once CheckNamespace
 namespace Plugin.BackgroundService
 {
     /// <summary>

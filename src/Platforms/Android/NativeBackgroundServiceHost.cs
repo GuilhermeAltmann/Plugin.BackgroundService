@@ -27,6 +27,7 @@ namespace Plugin.BackgroundService
         private static int _serviceNotificationIcon;
         private static string _serviceNotificationTitle;
         private static string _serviceNotificationContent;
+        private static int _serviceNotificationId = new Random().Next();
         private static Func<BackgroundServiceHost> _backgroundServiceCreationFunc;
         private static Type _intentLaunchType;
         private static bool _hasPeriodicTask;
@@ -99,7 +100,6 @@ namespace Plugin.BackgroundService
 
             _binder = new BackgroundServiceBinder(this);
             _messagingCenter = MessagingCenter.Instance;
-            //_actionMainActivity = "com.companyname.appname.show_main_activity";
         }
 
         /// <inheritdoc />
@@ -119,7 +119,7 @@ namespace Plugin.BackgroundService
             if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
             {
                 var notificationChannel = new NotificationChannel(_serviceNotificationChannelId,
-                    _serviceNotificationChannelName, NotificationImportance.High)
+                    _serviceNotificationChannelName, NotificationImportance.Default)
                 {
                     LockscreenVisibility = NotificationVisibility.Secret
                 };
@@ -160,6 +160,9 @@ namespace Plugin.BackgroundService
                         IsStarted = true;
                         _messagingCenter.Send<object, BackgroundServiceState>(this,
                             FromBackgroundMessages.BackgroundServiceState, new BackgroundServiceState(true));
+                        _messagingCenter.Subscribe<object, UpdateNotificationMessage>(this, 
+                            ToBackgroundMessages.UpdateBackgroundServiceNotificationMessage, 
+                            OnNotificationMessageUpdate);
                     });
             }
             else // Stop request
@@ -168,6 +171,17 @@ namespace Plugin.BackgroundService
             }
 
             return StartCommandResult.Sticky;
+        }
+
+        private void OnNotificationMessageUpdate(object sender, UpdateNotificationMessage message)
+        {
+            UpdateServiceNotificationContent(message.NewText);
+        }
+
+        private void UpdateServiceNotificationContent(string contentText)
+        {
+            var notification = BuildNotification(contentText);
+            _notificationManager.Notify(_serviceNotificationId, notification);
         }
 
         /// <inheritdoc />
@@ -225,23 +239,15 @@ namespace Plugin.BackgroundService
                     IsStarted = false;
                     _messagingCenter.Send<object, BackgroundServiceState>(this,
                         FromBackgroundMessages.BackgroundServiceState, new BackgroundServiceState(false));
+                    _messagingCenter.Unsubscribe<object, UpdateNotificationMessage>(this, ToBackgroundMessages.UpdateBackgroundServiceNotificationMessage);
                 });
         }
 
         private void BuildForegroundService()
         {
-            var notificationBuilder = new NotificationCompat.Builder(this, _serviceNotificationChannelId)
-                .SetContentTitle(_serviceNotificationTitle)
-                .SetSmallIcon(_serviceNotificationIcon)
-                .SetContentText(_serviceNotificationContent)
-                .SetOngoing(true)
-                .SetCategory(Notification.CategoryService);
+            var notification = BuildNotification(_serviceNotificationContent);
 
-            if (_intentLaunchType != null)
-                notificationBuilder.SetContentIntent(BuildIntentToShowMainActivity());
-                    
-            var notification = notificationBuilder.Build();
-            StartForeground(new Random().Next(), notification);
+            StartForeground(_serviceNotificationId, notification);
         }
 
         private PendingIntent BuildIntentToShowMainActivity()
@@ -252,6 +258,22 @@ namespace Plugin.BackgroundService
             var pendingIntent =
                 PendingIntent.GetActivity(this, 0, notificationIntent, PendingIntentFlags.UpdateCurrent);
             return pendingIntent;
+        }
+
+        private Notification BuildNotification(string contentText)
+        {
+            var notificationBuilder = new NotificationCompat.Builder(this, _serviceNotificationChannelId)
+                .SetContentTitle(_serviceNotificationTitle)
+                .SetSmallIcon(_serviceNotificationIcon)
+                .SetContentText(contentText)
+                .SetOngoing(true)
+                .SetCategory(Notification.CategoryService);
+
+            if (_intentLaunchType != null)
+                notificationBuilder.SetContentIntent(BuildIntentToShowMainActivity());
+
+            var notification = notificationBuilder.Build();
+            return notification;
         }
 
         private void AcquireWakelock()
