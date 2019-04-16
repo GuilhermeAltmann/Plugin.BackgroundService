@@ -1,6 +1,6 @@
 ﻿# Xamarin.Forms Background Service
 
-[![Build status](https://neovigie.visualstudio.com/Plugin.BackgroundService/_apis/build/status/Plugin.BackgroundService-CI)](https://neovigie.visualstudio.com/Plugin.BackgroundService/_build/latest?definitionId=28)
+[![Build status](https://dev.azure.com/nicolas-garcia/Plugin.BackgroundService/_apis/build/status/Plugin.BackgroundService-CI)](https://dev.azure.com/nicolas-garcia/Plugin.BackgroundService/_build/latest?definitionId=2)
 
 This plugin can be used for creating background services on Android and iOS.
 
