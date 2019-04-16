@@ -21,13 +21,13 @@ namespace Plugin.BackgroundService
     [Service(Enabled = true, Exported = false)]
     public class NativeBackgroundServiceHost : Service
     {
+        private static readonly int ServiceNotificationId = new Random().Next();
         private static string _serviceName;
         private static string _serviceNotificationChannelId;
         private static string _serviceNotificationChannelName;
         private static int _serviceNotificationIcon;
         private static string _serviceNotificationTitle;
         private static string _serviceNotificationContent;
-        private static int _serviceNotificationId = new Random().Next();
         private static Func<BackgroundServiceHost> _backgroundServiceCreationFunc;
         private static Type _intentLaunchType;
         private static bool _hasPeriodicTask;
@@ -181,7 +181,7 @@ namespace Plugin.BackgroundService
         private void UpdateServiceNotificationContent(string contentText)
         {
             var notification = BuildNotification(contentText);
-            _notificationManager.Notify(_serviceNotificationId, notification);
+            _notificationManager.Notify(ServiceNotificationId, notification);
         }
 
         /// <inheritdoc />
@@ -247,7 +247,7 @@ namespace Plugin.BackgroundService
         {
             var notification = BuildNotification(_serviceNotificationContent);
 
-            StartForeground(_serviceNotificationId, notification);
+            StartForeground(ServiceNotificationId, notification);
         }
 
         private PendingIntent BuildIntentToShowMainActivity()
