@@ -28,11 +28,11 @@
     <LangVersion>latest</LangVersion>
     
     <!--TODO: Fill these in-->
-    <PackageLicenseUrl>LINK TO LICENSE</PackageLicenseUrl>
-    <PackageProjectUrl></PackageProjectUrl>
-    <RepositoryUrl>https://github.com/nicolas-garcia/Plugin.BackgroundService</RepositoryUrl>
-    <PackageReleaseNotes>RELEASE NOTES</PackageReleaseNotes>
-    <PackageIconUrl>ICON URL</PackageIconUrl>
+    <PackageLicenseUrl>https://github.com/nicolas-garcia/Plugin.BackgroundService/blob/master/LICENSE.md</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/nicolas-garcia/Plugin.BackgroundService</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/nicolas-garcia/Plugin.BackgroundService.git</RepositoryUrl>
+    <PackageReleaseNotes></PackageReleaseNotes>
+    <PackageIconUrl></PackageIconUrl>
     <PackageTags>xamarin, windows, ios, android, xamarin.forms, plugin, BackgroundService</PackageTags>
     
     <Title>BackgroundServicePlugin Plugin for Xamarin and Windows</Title>
