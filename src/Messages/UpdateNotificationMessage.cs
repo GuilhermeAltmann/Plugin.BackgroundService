@@ -3,7 +3,7 @@
     /// <summary>
     /// Update notification message
     /// </summary>
-    public class UpdateNotificationMessage
+    internal class UpdateNotificationMessage
     {
         /// <summary>
         /// New text to display in notification

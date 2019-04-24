@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using Plugin.BackgroundService.Messages;
+using Plugin.BackgroundService;
 using Xamarin.Forms;
 
 namespace SampleApp.Services
@@ -14,20 +14,20 @@ namespace SampleApp.Services
     {
         private readonly IRestService _restService;
         private readonly ISecureStorageService _secureStorageService;
-        private readonly IMessagingCenter _messagingCenter;
+        private readonly IBackgroundService _backgroundService;
 
-        public FactService(IRestService restService, ISecureStorageService secureStorageService, IMessagingCenter messagingCenter)
+        public FactService(IRestService restService, ISecureStorageService secureStorageService, IBackgroundService backgroundService)
         {
             _restService = restService;
             _secureStorageService = secureStorageService;
-            _messagingCenter = messagingCenter;
+            _backgroundService = backgroundService;
         }
 
         public async Task UpdateFactAsync()
         {
             var fact = await _restService.GetFactAsync();
             await _secureStorageService.SetAsync("fact", fact);
-            _messagingCenter.Send<object, UpdateNotificationMessage>(this, ToBackgroundMessages.UpdateBackgroundServiceNotificationMessage, new UpdateNotificationMessage(fact.Text));
+            _backgroundService.UpdateNotificationMessage(fact.Text);
         }
 
         public async Task<FactModel> GetLatestFactAsync()

@@ -3,7 +3,7 @@
     /// <summary>
     /// Messages from Background Service
     /// </summary>
-    public static class FromBackgroundMessages
+    internal static class FromBackgroundMessages
     {
         /// <summary>
         /// Current Background Service state

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Plugin.BackgroundService;
-using Prism;
 using Prism.Ioc;
 
 namespace SampleApp.Services
@@ -9,57 +8,60 @@ namespace SampleApp.Services
     /// <summary>
     /// Periodic background service
     /// </summary>
-    public class AliveService : IPeriodicService
+    public class AliveService : BackgroundServiceBase, IPeriodicService
     {
         private int _count;
         private IFactService _factService;
 
-        public AliveService()
-        {
-        }
 
-        public Task StartAsync()
+        public override async Task StartAsync()
         {
             _count = 0;
             Console.WriteLine("Hey, I'm born! Hello World!");
-            return Task.CompletedTask;
+            await RefreshServicesIfNeededAsync();
         }
 
-        public async Task StopAsync()
+        public override async Task StopAsync()
         {
-            if (PrismApplicationBase.Current != null && _factService == null)
-                _factService = PrismApplicationBase.Current.Container.Resolve<IFactService>();
-            if (_factService != null)
+            await RefreshServicesIfNeededAsync();
+            var fact = await _factService.GetLatestFactAsync();
+            if (fact != null)
             {
-                var fact = await _factService.GetLatestFactAsync();
-                if (fact != null)
-                {
-                    Console.WriteLine("I learned something interesting before dying: {0}", fact.Text);
-                    Console.WriteLine("I'll take a moment to meditate on that thought...");
-                    // This delay is here for the sake of repro for issue #3.
-                    await Task.Delay(TimeSpan.FromSeconds(5));
-                }
+                Console.WriteLine("I learned something interesting before dying: {0}", fact.Text);
+                Console.WriteLine("I'll take a moment to meditate on that thought...");
+                // This delay is here for the sake of repro for issue #3.
+                await Task.Delay(TimeSpan.FromSeconds(5));
             }
 
             Console.WriteLine("Well... I'm dead now.");
         }
 
+        protected override Task InitializeServicesAsync()
+        {
+            if (!IsApplicationAttached)
+                throw new InvalidOperationException("No application attached to background service. Unable to resolve services.");
+
+            _factService = AppContainer.Resolve<IFactService>();
+
+            return Task.CompletedTask;
+        }
+
+        protected override Task CleanUpServicesAsync()
+        {
+            _factService = null;
+
+            return Task.CompletedTask;
+        }
+
         public async Task PeriodicActionAsync()
         {
             Console.WriteLine("I'm still alive! [{0}]", _count++);
+            await RefreshServicesIfNeededAsync();
+            var fact = await _factService.GetLatestFactAsync();
+            if (fact != null)
+                Console.WriteLine("I know something interesting: {0}", fact.Text);
 
-            if (PrismApplicationBase.Current != null && _factService == null)
-                _factService = PrismApplicationBase.Current.Container.Resolve<IFactService>();
-            if (_factService != null)
-            {
-                var fact = await _factService.GetLatestFactAsync();
-                if (fact != null)
-                {
-                    Console.WriteLine("I know something interesting: {0}", fact.Text);
-                }
-
-                await _factService.UpdateFactAsync();
-            }
+            await _factService.UpdateFactAsync();
         }
     }
 }
