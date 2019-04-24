@@ -1,6 +1,11 @@
 ﻿# Xamarin.Forms Background Service
 
-[![Azure DevOps builds](https://img.shields.io/azure-devops/build/nicolas-garcia/Plugin.BackgroundService/2.svg)](https://dev.azure.com/nicolas-garcia/Plugin.BackgroundService/_build?definitionId=2) [![Nuget](https://img.shields.io/nuget/v/Plugin.BackgroundService.svg)](https://www.nuget.org/packages/Plugin.BackgroundService/)
+| Version | Status |
+| --- | --- |
+| master | [![Azure DevOps builds](https://img.shields.io/azure-devops/build/nicolas-garcia/Plugin.BackgroundService/2.svg)](https://dev.azure.com/nicolas-garcia/Plugin.BackgroundService/_build?definitionId=2) [![Nuget](https://img.shields.io/nuget/v/Plugin.BackgroundService.svg)](https://www.nuget.org/packages/Plugin.BackgroundService/) |
+| dev | [![Azure DevOps builds](https://img.shields.io/azure-devops/build/nicolas-garcia/Plugin.BackgroundService/4.svg)](https://dev.azure.com/nicolas-garcia/Plugin.BackgroundService/_build?definitionId=4) [![Nuget](https://img.shields.io/nuget/vpre/Plugin.BackgroundService.svg)](https://www.nuget.org/packages/Plugin.BackgroundService/) |
+
+
 
 This plugin can be used for creating background services on Android and iOS. 
 
