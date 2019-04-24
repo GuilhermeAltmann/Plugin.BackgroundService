@@ -9,6 +9,7 @@ using Android.Support.V4.App;
 using Plugin.BackgroundService.Messages;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.Android;
+using Exception = System.Exception;
 
 #if __ANDROID__
 [assembly: UsesPermission(Manifest.Permission.WakeLock)]
@@ -142,6 +143,10 @@ namespace Plugin.BackgroundService
         }
 
         /// <inheritdoc />
+        /// Note that the system calls this on your service's main thread.
+        /// A service's main thread is the same thread where UI operations take place for Activities running in the same process.
+        /// You should always avoid stalling the main thread's event loop.
+        /// When doing long-running operations, network calls, or heavy disk I/O, you should kick off a new thread, or use AsyncTask`3.
         public override StartCommandResult OnStartCommand(Intent intent, StartCommandFlags flags, int startId)
         {
             var stopRequest = intent.GetBooleanExtra(StopServiceExtra, false);
@@ -149,26 +154,26 @@ namespace Plugin.BackgroundService
             if (!stopRequest && (IsStarted || _starting)) // Not a stop request, already started or starting
                 return StartCommandResult.Sticky;
 
-            if (!stopRequest) // Start request
+            Task.Factory.StartNew(async () =>
             {
-                _starting = true;
-                BuildForegroundService();
-                StartInBackground()
-                    .ContinueWith(task =>
-                    {
-                        _starting = false;
-                        IsStarted = true;
-                        _messagingCenter.Send<object, BackgroundServiceState>(this,
-                            FromBackgroundMessages.BackgroundServiceState, new BackgroundServiceState(true));
-                        _messagingCenter.Subscribe<object, UpdateNotificationMessage>(this, 
-                            ToBackgroundMessages.UpdateBackgroundServiceNotificationMessage, 
-                            OnNotificationMessageUpdate);
-                    });
-            }
-            else // Stop request
-            {
-                Cleanup().Wait();
-            }
+                if (!stopRequest) // Start request
+                {
+                    _starting = true;
+                    BuildForegroundService();
+                    await StartInBackground();
+                    _starting = false;
+                    IsStarted = true;
+                    _messagingCenter.Send<object, BackgroundServiceState>(this,
+                        FromBackgroundMessages.BackgroundServiceState, new BackgroundServiceState(true));
+                    _messagingCenter.Subscribe<object, UpdateNotificationMessage>(this,
+                        ToBackgroundMessages.UpdateBackgroundServiceNotificationMessage,
+                        OnNotificationMessageUpdate);
+                }
+                else // Stop request
+                {
+                    await Cleanup();
+                }
+            });
 
             return StartCommandResult.Sticky;
         }
