@@ -3,7 +3,7 @@
     /// <summary>
     /// Messages send to background service
     /// </summary>
-    public static class ToBackgroundMessages
+    internal static class ToBackgroundMessages
     {
         /// <summary>
         /// Start all background services

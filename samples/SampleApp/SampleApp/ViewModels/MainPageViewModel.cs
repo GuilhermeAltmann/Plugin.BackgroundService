@@ -1,9 +1,9 @@
-﻿using System.Windows.Input;
-using Plugin.BackgroundService.Messages;
+﻿using System;
+using System.Windows.Input;
+using Plugin.BackgroundService;
 using Prism.AppModel;
 using Prism.Commands;
 using Prism.Navigation;
-using Xamarin.Forms;
 
 namespace SampleApp.ViewModels
 {
@@ -20,13 +20,13 @@ namespace SampleApp.ViewModels
 
         private bool _backgroundRunning;
 
-        private readonly IMessagingCenter _messagingCenter;
+        private readonly IBackgroundService _backgroundService;
 
-        public MainPageViewModel(INavigationService navigationService, IMessagingCenter messagingCenter)
+        public MainPageViewModel(INavigationService navigationService, IBackgroundService backgroundService)
             : base(navigationService)
         {
             Title = "Main Page";
-            _messagingCenter = messagingCenter;
+            _backgroundService = backgroundService;
             BackgroundRunning = false;
             StartServiceCommand = new DelegateCommand(StartService, () => !BackgroundRunning).ObservesProperty(() => BackgroundRunning);
             StopServiceCommand = new DelegateCommand(StopService, () => BackgroundRunning).ObservesProperty(() => BackgroundRunning);
@@ -34,28 +34,27 @@ namespace SampleApp.ViewModels
 
         private void StartService()
         {
-            _messagingCenter.Send<object>(this, ToBackgroundMessages.StartBackgroundService);
+            _backgroundService.StartService();
         }
 
         private void StopService()
         {
-            _messagingCenter.Send<object>(this, ToBackgroundMessages.StopBackgroundService);
+            _backgroundService.StopService();
         }
 
         public void OnAppearing()
         {
-            _messagingCenter.Subscribe<object, BackgroundServiceState>(this, FromBackgroundMessages.BackgroundServiceState, OnBackgroundServiceState);
-            _messagingCenter.Send<object>(this, ToBackgroundMessages.GetBackgroundServiceState);
+            _backgroundService.BackgroundServiceRunningStateChanged += OnBackgroundServiceStateChanged;
         }
 
-        private void OnBackgroundServiceState(object sender, BackgroundServiceState state)
+        private void OnBackgroundServiceStateChanged(object sender, BackgroundServiceRunningStateChangedEventArgs eventArgs)
         {
-            BackgroundRunning = state.IsRunning;
+            BackgroundRunning = eventArgs.IsRunning;
         }
 
         public void OnDisappearing()
         {
-            _messagingCenter.Unsubscribe<object, BackgroundServiceState>(this, FromBackgroundMessages.BackgroundServiceState);
+            _backgroundService.BackgroundServiceRunningStateChanged -= OnBackgroundServiceStateChanged;
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Prism;
+﻿using Plugin.BackgroundService;
+using Prism;
 using Prism.Ioc;
 using SampleApp.Services;
 using SampleApp.ViewModels;
@@ -33,6 +34,7 @@ namespace SampleApp
             containerRegistry.RegisterSingleton<IRestService, RestService>();
             containerRegistry.RegisterSingleton<ISecureStorageService, SecureStorageService>();
             containerRegistry.RegisterSingleton<IFactService, FactService>();
+            containerRegistry.RegisterInstance<IBackgroundService>(CrossBackgroundService.Current);
 
             containerRegistry.RegisterForNavigation<NavigationPage>();
             containerRegistry.RegisterForNavigation<MainPage, MainPageViewModel>();

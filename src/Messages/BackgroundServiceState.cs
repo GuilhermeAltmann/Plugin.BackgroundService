@@ -3,7 +3,7 @@
     /// <summary>
     /// Background service state
     /// </summary>
-    public class BackgroundServiceState
+    internal class BackgroundServiceState
     {
         /// <summary>
         /// True if background service is running

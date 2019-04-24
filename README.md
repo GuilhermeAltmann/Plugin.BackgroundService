@@ -2,7 +2,17 @@
 
 [![Azure DevOps builds](https://img.shields.io/azure-devops/build/nicolas-garcia/Plugin.BackgroundService/2.svg)](https://dev.azure.com/nicolas-garcia/Plugin.BackgroundService/_build?definitionId=2) [![Nuget](https://img.shields.io/nuget/v/Plugin.BackgroundService.svg)](https://www.nuget.org/packages/Plugin.BackgroundService/)
 
-This plugin can be used for creating background services on Android and iOS.
+This plugin can be used for creating background services on Android and iOS. 
+
+### How it works?
+
+Creating a real background service on a mobile app is real challenge for new mobile developpers. I struggled many times trying to do it the right way. I think I've come up with a solution that works. Running a background service isn't that hard ok. But what if I want that my service execute a bunch of code periodically ? I mean, strictly periodically. I don't want to wait for the user to unlock the screen or whatever. 
+
+On iOS, the solution is quite easy, a loop should do the trick, until the system decide that your service should die. In order to prevent that, you must listen the user location. Of course, if you don't need it in your application, it will be impossible to publish your app on the store. Yeah, my solution isn't magic, sorry.
+
+On Android then, that one was hard, especially with the latest Android releases. I must use an Android Service of course, then use a wakelock for my service and finally use a Handler for scheduling periodic calls precisely.
+
+Anyway, it appears to work, and I use this plugin at work for my developments. So feel free to use it and improve it!
 
 ### Android initialization
 
@@ -23,6 +33,10 @@ protected override bool AskForBatteryOptimizations
 }
 ```
 In this case, the application won't ask for battery optimization if running in debug.
+
+Why I need this?
+
+Because by default, all applications are 'optimized' by Android. It means that you will be suspended when the system decide to. In order to prevent that behavior, the user must disable the optimization of the application. If set to true, this boolean leads to showing a popup to the user before redirecting him to the settings for disabling the optimization.
 
 Then, given your default `OnCreate` method in your `MainActivity.cs`:
 ```csharp
@@ -77,37 +91,34 @@ In order to keep the app running, your app must be declared as [supporting backg
 
 Annnnd you're done. Unlike Android, the background service can run only if you are listening geolocation for example, and while you're listening to it. If you kill the app, the background service will be stopped too.
 
+### Notes
+
+Please note that all your `IService` classes MUST NOT use any form of dependency injection, or at least, not the same as your application. The background service and your application do not have the same life cycle and you may have some mixed up references between your background service and your app if you use the same IoC.
+
 ### How to interact with the background service?
 
-In order to start the background service, you have to send a message through the MessagingCenter:
+In order to start the background service:
 ```csharp
-var messagingCenter = MessagingCenter.Instance;
-messagingCenter.Send<object>(this, Plugin.BackgroundService.Messages.ToBackgroundMessages.StartBackgroundService);
+CrossBackgroundService.Current.StartService();
 ```
 
 For stopping it:
 ```csharp
-var messagingCenter = MessagingCenter.Instance;
-messagingCenter.Send<object>(this, Plugin.BackgroundService.Messages.ToBackgroundMessages.StopBackgroundService);
+CrossBackgroundService.Current.StopService();
 ```
 
 Subscribe to background service state:
 ```csharp
-var messagingCenter = MessagingCenter.Instance;
-messagingCenter.Subscribe<object, BackgroundServiceState>(this, Plugin.BackgroundService.Messages.FromBackgroundMessages.BackgroundServiceState, OnBackgroundServiceState);
+CrossBackgroundService.Current.BackgroundServiceRunningStateChanged += (s, e) => Console.WriteLine(e.IsRunning);
 ```
-Do not forget to unsubscribe from `MessagingCenter`:
+Do not forget to unsubscribe from this event.
+
+Getting background service state:
 ```csharp
-var messagingCenter = MessagingCenter.Instance;
-messagingCenter.Unsubscribe<object, BackgroundServiceState>(this, Plugin.BackgroundService.Messages.FromBackgroundMessages.BackgroundServiceState);
+CrossBackgroundService.Current.IsRunning
 ```
 
-Send request for getting background service state:
+Updating the text content of the service notification:
 ```csharp
-var messagingCenter = MessagingCenter.Instance;
-messagingCenter.Send<object>(this, Plugin.BackgroundService.Messages.ToBackgroundMessages.GetBackgroundServiceState);
+CrossBackgroundService.Current.UpdateNotificationMessage("my new text");
 ```
-
-### Notes
-
-Please note that all your `IService` classes MUST NOT use any form of dependency injection, or at least, not the same as your application. The background service and your application do not have the same life cycle and you may have some mixed up references between your background service and your app if you use the same IoC.
