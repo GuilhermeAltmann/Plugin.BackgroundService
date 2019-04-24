@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Plugin.BackgroundService;
 using Prism;
 using Prism.Ioc;
-using Prism.Unity;
 
 namespace SampleApp.Services
 {
@@ -17,7 +16,6 @@ namespace SampleApp.Services
 
         public AliveService()
         {
-            
         }
 
         public Task StartAsync()
@@ -27,10 +25,23 @@ namespace SampleApp.Services
             return Task.CompletedTask;
         }
 
-        public Task StopAsync()
+        public async Task StopAsync()
         {
+            if (PrismApplicationBase.Current != null && _factService == null)
+                _factService = PrismApplicationBase.Current.Container.Resolve<IFactService>();
+            if (_factService != null)
+            {
+                var fact = await _factService.GetLatestFactAsync();
+                if (fact != null)
+                {
+                    Console.WriteLine("I learned something interesting before dying: {0}", fact.Text);
+                    Console.WriteLine("I'll take a moment to meditate on that thought...");
+                    // This delay is here for the sake of repro for issue #3.
+                    await Task.Delay(TimeSpan.FromSeconds(5));
+                }
+            }
+
             Console.WriteLine("Well... I'm dead now.");
-            return Task.CompletedTask;
         }
 
         public async Task PeriodicActionAsync()
@@ -38,7 +49,7 @@ namespace SampleApp.Services
             Console.WriteLine("I'm still alive! [{0}]", _count++);
 
             if (PrismApplicationBase.Current != null && _factService == null)
-                _factService = PrismApplicationBase.Current.Container.Resolve<IFactService>();                
+                _factService = PrismApplicationBase.Current.Container.Resolve<IFactService>();
             if (_factService != null)
             {
                 var fact = await _factService.GetLatestFactAsync();
@@ -49,7 +60,6 @@ namespace SampleApp.Services
 
                 await _factService.UpdateFactAsync();
             }
-
         }
     }
 }
