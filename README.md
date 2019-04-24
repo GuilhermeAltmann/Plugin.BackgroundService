@@ -100,6 +100,8 @@ Annnnd you're done. Unlike Android, the background service can run only if you a
 
 Please note that all your `IService` classes MUST NOT use any form of dependency injection, or at least, not the same as your application. The background service and your application do not have the same life cycle and you may have some mixed up references between your background service and your app if you use the same IoC.
 
+**I found a solution for Prism. Take a look at [BackgroundServiceBase.cs](samples/SampleApp/SampleApp/Services/BackgroundServiceBase.cs) and [AliveService.cs](samples/SampleApp/SampleApp/Services/AliveService.cs) for a hint.**
+
 ### How to interact with the background service?
 
 In order to start the background service:

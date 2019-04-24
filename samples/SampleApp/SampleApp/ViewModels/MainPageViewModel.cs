@@ -27,7 +27,7 @@ namespace SampleApp.ViewModels
         {
             Title = "Main Page";
             _backgroundService = backgroundService;
-            BackgroundRunning = false;
+            BackgroundRunning = _backgroundService.IsRunning;
             StartServiceCommand = new DelegateCommand(StartService, () => !BackgroundRunning).ObservesProperty(() => BackgroundRunning);
             StopServiceCommand = new DelegateCommand(StopService, () => BackgroundRunning).ObservesProperty(() => BackgroundRunning);
         }
