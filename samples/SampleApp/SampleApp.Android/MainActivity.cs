@@ -35,6 +35,7 @@ namespace SampleApp.Droid
                 () => new BackgroundServiceHost(list =>
                 {
                     list.Add(new AliveService()); // Should inherit from IService or IPeriodicService
+                    list.Add(new AccelerometerListenerService());
                 }, TimeSpan.FromSeconds(5)), // For periodic services, you can set the interval between calls
                 typeof(MainActivity));
         }
